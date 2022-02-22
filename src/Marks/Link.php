@@ -9,6 +9,8 @@ class Link extends Mark
 {
     public static $name = 'link';
 
+    public static $ignoredAttributes = ['data-saferedirecturl', 'data-mt-detrack-inspected', 'title', 'word-break', 'name'];
+
     public function addOptions()
     {
         return [
@@ -31,6 +33,21 @@ class Link extends Mark
     public function addAttributes()
     {
         return [
+            '_' => [
+                'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
+                  if (isset($HTMLAttributes['class'])) {
+                    $HTMLAttributes['class']->removeClass('l');
+                    $HTMLAttributes['class']->removeClass('link');
+                  }
+
+                  $DOMNode->removeAttributeNS(null, 'xmlns:a');
+
+                  return null;
+                },
+                'renderHTML' => function ($attributes) {
+                    return null;
+                },
+            ],
             'href' => [],
             'target' => [],
             'rel' => [],

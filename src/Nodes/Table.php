@@ -9,10 +9,14 @@ class Table extends Node
 {
     public static $name = 'table';
 
+    public static $ignoredAttributes = ['class'];
+
     public function addOptions()
     {
         return [
-            'HTMLAttributes' => [],
+            'HTMLAttributes' => [
+              'class' => 'table table-bordered'
+            ],
         ];
     }
 
@@ -21,6 +25,24 @@ class Table extends Node
         return [
             [
                 'tag' => 'table',
+            ],
+        ];
+    }
+
+    public function addAttributes()
+    {
+        return [
+            '_' => [
+                'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
+                  if (isset($HTMLAttributes['class'])) {
+                    $HTMLAttributes['class']->removeClass('table');
+                    $HTMLAttributes['class']->removeClass('table-bordered');
+                  }
+                  return null;
+                },
+                'renderHTML' => function ($attributes) {
+                    return null;
+                },
             ],
         ];
     }

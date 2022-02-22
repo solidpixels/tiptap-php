@@ -9,6 +9,8 @@ class Heading extends Node
 {
     public static $name = 'heading';
 
+    public static $ignoredAttributes = ['class', 'style'];
+
     public function addOptions()
     {
         return [
@@ -27,6 +29,13 @@ class Heading extends Node
                 ],
             ];
         }, $this->options['levels']);
+    }
+
+    public function addAttributes()
+    {
+        return [
+            'id' => [],
+        ];
     }
 
     public function renderHTML($node, $HTMLAttributes = [])

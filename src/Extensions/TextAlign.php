@@ -13,7 +13,7 @@ class TextAlign extends Extension
     {
         return [
             'types' => [],
-            'alignments' => ['left', 'center', 'right', 'justify'],
+            'alignments' => ['left', 'center', 'right'],
             'defaultAlignment' => 'left',
         ];
     }
@@ -26,14 +26,33 @@ class TextAlign extends Extension
               'attributes' => [
                 'textAlign' => [
                     'default' => $this->options['defaultAlignment'],
-                    'parseHTML' => fn ($DOMNode) =>
-                        InlineStyle::getAttribute($DOMNode, 'text-align') ?? $this->options['defaultAlignment'],
+                    'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
+                      $align = $DOMNode->getAttribute('align');
+
+                      foreach ($this->options['alignments'] as $name) {
+                        if ($align == $name) {
+                          $DOMNode->removeAttribute('align');
+                          return $name;
+                        }
+
+                        if (isset($HTMLAttributes['class']) && $HTMLAttributes['class']->hasClass($name)) {
+                          $HTMLAttributes['class']->removeClass($name);
+                          return $name;
+                        }
+                      }
+    
+                      $style = \Tiptap\Utils\InlineStyle::getAttribute($DOMNode, 'text-align') ?: null;
+                      if ($style) {
+                        $DOMNode->removeAttribute('style');
+                      }
+                      return $style;
+                    },
                     'renderHTML' => function ($attributes) {
-                        if ($attributes->textAlign === $this->options['defaultAlignment']) {
+                        if (!isset($attributes->textAlign) || $attributes->textAlign === $this->options['defaultAlignment']) {
                             return null;
                         }
 
-                        return ['style' => "text-align: {$attributes->textAlign}"];
+                        return ['class' => $attributes->textAlign];
                     },
                 ],
               ],

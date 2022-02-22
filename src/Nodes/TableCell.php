@@ -9,6 +9,8 @@ class TableCell extends Node
 {
     public static $name = 'tableCell';
 
+    public static $ignoredAttributes = ['nowrap', 'align', 'colspan', 'rowspan'];
+
     public function addOptions()
     {
         return [
@@ -28,6 +30,17 @@ class TableCell extends Node
     public function addAttributes()
     {
         return [
+          '_' => [
+              'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
+                if (isset($HTMLAttributes['class'])) {
+                  $HTMLAttributes['class']->removeClass('text-large');
+                }
+                return null;
+              },
+              'renderHTML' => function ($attributes) {
+                  return null;
+              },
+          ],
             'rowspan' => [
                 'parseHTML' => fn ($DOMNode) => intval($DOMNode->getAttribute('rowspan')) ?: null,
             ],

@@ -8,6 +8,8 @@ use Tiptap\Utils\HTML;
 class BulletList extends Node
 {
     public static $name = 'bulletList';
+    
+    public static $ignoredAttributes = ['wfd-id'];
 
     public function addOptions()
     {

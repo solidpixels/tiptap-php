@@ -9,6 +9,8 @@ class OrderedList extends Node
 {
     public static $name = 'orderedList';
 
+    public static $ignoredAttributes = ['start'];
+
     public function addOptions()
     {
         return [

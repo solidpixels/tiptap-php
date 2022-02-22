@@ -16,6 +16,8 @@ class TextStyle extends Mark
         ];
     }
 
+    public static $ignoredAttributes = ['style'];
+
     public function parseHTML()
     {
         return [

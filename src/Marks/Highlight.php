@@ -10,30 +10,43 @@ class Highlight extends Mark
 {
     public static $name = 'highlight';
 
+    public static $ignoredAttributes = ['style', 'class'];
+
     public function addOptions()
     {
         return [
-            'multicolor' => false,
-            'HTMLAttributes' => [],
+            'HTMLAttributes' => [
+              'class' => 'text-highlight',
+            ],
         ];
     }
 
     public function parseHTML()
     {
         return [
-            [
-                'tag' => 'mark',
-            ],
+          [
+              'tag' => 'mark',
+          ],
+          [
+              'tag' => 'span[class="text-highlight"]',
+          ],
         ];
     }
 
     public function addAttributes()
     {
-        if (! $this->options['multicolor']) {
-            return [];
-        }
-
         return [
+            '_' => [
+                'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
+                  if (isset($HTMLAttributes['class'])) {
+                    $HTMLAttributes['class']->removeClass('text-highlight');
+                  }
+                  return null;
+                },
+                'renderHTML' => function ($attributes) {
+                    return null;
+                },
+            ],
             'color' => [
                 'parseHTML' => function ($DOMNode) {
                     if ($color = $DOMNode->getAttribute('data-color')) {
@@ -43,13 +56,13 @@ class Highlight extends Mark
                     return InlineStyle::getAttribute($DOMNode, 'background-color') ?: null;
                 },
                 'renderHTML' => function ($attributes) {
-                    if (! $attributes->color) {
+                    if (!isset($attributes->color)) {
                         return null;
                     }
 
                     return [
                         'data-color' => $attributes->color,
-                        'style' => "background-color: {$attributes->color}",
+                        'style' => "background-color:{$attributes->color}",
                     ];
                 },
             ],
@@ -59,7 +72,7 @@ class Highlight extends Mark
     public function renderHTML($mark, $HTMLAttributes = [])
     {
         return [
-            'mark',
+            'span',
             HTML::mergeAttributes($this->options['HTMLAttributes'], $HTMLAttributes),
             0,
         ];
