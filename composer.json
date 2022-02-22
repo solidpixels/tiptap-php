@@ -16,9 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
-        "scrivo/highlight.php": "v9.18.1.9",
-        "spatie/shiki-php": "^1.1"
+        "php": "^7.4|^8.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.5",

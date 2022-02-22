@@ -10,6 +10,8 @@ class Schema
     public array $marks = [];
     public array $extensions = [];
 
+    public $ignoreExtension;
+
     public $defaultNode;
     public $topNode;
 
@@ -36,6 +38,10 @@ class Schema
         $this->topNode = current(array_filter($this->nodes, fn ($node) => $node::$topNode));
 
         return $this;
+    }
+
+    public function setIgnoreExtension($extension) {
+        $this->ignoreExtension = $extension;
     }
 
     private function loadExtensions($extensions = [])

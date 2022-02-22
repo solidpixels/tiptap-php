@@ -72,7 +72,11 @@ class DOMParser
 
         foreach ($node->childNodes as $child) {
             if ($class = $this->getNodeFor($child)) {
-                $item = $this->parseAttributes($class, $child);
+                $HTMLAttributes = [];
+                $this->parseClasses($child, $HTMLAttributes);
+
+                $item = $this->parseAttributes($class, $child, $HTMLAttributes);
+                if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkAttributes($class, $child, $item, $HTMLAttributes);
 
                 if ($item === null) {
                     if ($child->hasChildNodes()) {
@@ -94,7 +98,7 @@ class DOMParser
                     ]);
                 }
 
-                if ($wrapper = $class::wrapper($child)) {
+                if ($wrapper = $class::wrapper($child, $HTMLAttributes)) {
                     $item['content'] = [
                         array_merge($wrapper, [
                             'content' => $item['content'] ?? [],
@@ -104,7 +108,13 @@ class DOMParser
 
                 array_push($nodes, $item);
             } elseif ($class = $this->getMarkFor($child)) {
-                array_push($this->storedMarks, $this->parseAttributes($class, $child));
+                $HTMLAttributes = [];
+                $this->parseClasses($child, $HTMLAttributes);
+                
+                $data = $this->parseAttributes($class, $child, $HTMLAttributes);
+                array_push($this->storedMarks, $data);
+
+                if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkAttributes($class, $child, $data, $HTMLAttributes);
 
                 if ($child->hasChildNodes()) {
                     $nodes = array_merge($nodes, $this->processChildren($child));
@@ -113,9 +123,11 @@ class DOMParser
                 array_pop($this->storedMarks);
             } elseif ($child->hasChildNodes()) {
                 $nodes = array_merge($nodes, $this->processChildren($child));
+                if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkTag($child);
+            } else {
+                if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkTag($child);
             }
         }
-
 
         // If similar nodes with different text follow each other,
         // we can merge them into a single node.
@@ -157,7 +169,6 @@ class DOMParser
         return $result;
     }
 
-
     private function getNodeFor($item)
     {
         return $this->getExtensionFor($item, $this->schema->nodes);
@@ -198,7 +209,7 @@ class DOMParser
     {
         // ['tag' => 'span[type="mention"]']
         if (isset($parseRule['tag'])) {
-            if (preg_match('/([a-zA-Z-]*)\[([a-z-]+)(="?([a-zA-Z]*)"?)?\]$/', $parseRule['tag'], $matches)) {
+            if (preg_match('/([a-zA-Z-]*)\[([a-z-]+)(="?([a-zA-Z-]*)"?)?\]$/', $parseRule['tag'], $matches)) {
                 $tag = $matches[1];
                 $attribute = $matches[2];
                 if (isset($matches[4])) {
@@ -269,12 +280,20 @@ class DOMParser
         return true;
     }
 
+    private function parseClasses($node, &$HTMLAttributes)
+    {
+        $classes = new \Tiptap\Utils\CSSClass($node);
+        if ($classes->names) {
+            $HTMLAttributes['class'] = $classes;
+        }
+    }
+
     /**
      * @return (array|mixed|string)[]|null
      *
      * @psalm-return array{type: mixed, text?: string, attrs?: array}|null
      */
-    private function parseAttributes($class, $DOMNode): ?array
+    private function parseAttributes($class, $DOMNode, &$HTMLAttributes): ?array
     {
         $item = [
             'type' => $class::$name,
@@ -347,9 +366,10 @@ class DOMParser
          */
         foreach ($this->schema->getAttributeConfigurations($class) as $attribute => $configuration) {
             if (isset($configuration['parseHTML'])) {
-                $value = $configuration['parseHTML']($DOMNode);
+                $value = $configuration['parseHTML']($DOMNode, $HTMLAttributes);
             } else {
-                $value = $DOMNode->getAttribute($attribute) ?: null;
+              $value = $DOMNode->getAttribute($attribute) ?: null;
+              $DOMNode->removeAttribute($attribute);
             }
 
             if ($value !== null) {
