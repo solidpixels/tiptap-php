@@ -4,13 +4,13 @@ namespace Tiptap\Exception;
 
 class UnknownAttributeException extends BaseException
 {
-    public function __construct($node)
+    public function __construct($node, $attribute)
     {
-        parent::__construct('Unknown attribute \'' . $node->attributes->item(0)->nodeName . '="' . $node->attributes->item(0)->nodeValue . '"\' for <' . $node->nodeName . '/>');
+        parent::__construct('Unknown attribute \'' . $attribute . '="' . $node->getAttribute($attribute) . '"\' for <' . $node->nodeName . '/>');
 
         $this->node = $node;
     }
-    
+
     public function __toString()
     {
         return get_class($this) . " {$this->message} in {$this->file}:{$this->line}\n"

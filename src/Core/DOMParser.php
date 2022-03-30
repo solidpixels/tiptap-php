@@ -74,6 +74,7 @@ class DOMParser
             if ($class = $this->getNodeFor($child)) {
                 $HTMLAttributes = [];
                 $this->parseClasses($child, $HTMLAttributes);
+                $this->parseStyles($child, $HTMLAttributes);
 
                 $item = $this->parseAttributes($class, $child, $HTMLAttributes);
                 if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkAttributes($class, $child, $item, $HTMLAttributes);
@@ -110,7 +111,8 @@ class DOMParser
             } elseif ($class = $this->getMarkFor($child)) {
                 $HTMLAttributes = [];
                 $this->parseClasses($child, $HTMLAttributes);
-                
+                $this->parseStyles($child, $HTMLAttributes);
+
                 $data = $this->parseAttributes($class, $child, $HTMLAttributes);
                 array_push($this->storedMarks, $data);
 
@@ -285,6 +287,14 @@ class DOMParser
         $classes = new \Tiptap\Utils\CSSClass($node);
         if ($classes->names) {
             $HTMLAttributes['class'] = $classes;
+        }
+    }
+
+    private function parseStyles($node, &$HTMLAttributes)
+    {
+        $styles = new \Tiptap\Utils\CSSInlineStyle($node);
+        if ($styles->hasStyles()) {
+            $HTMLAttributes['style'] = $styles;
         }
     }
 

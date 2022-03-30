@@ -39,13 +39,14 @@ class TextAlign extends Extension
                           $HTMLAttributes['class']->removeClass($name);
                           return $name;
                         }
+
+                        if (isset($HTMLAttributes['style']) && $HTMLAttributes['style']->getStyle('text-align') == $name) {
+                          $HTMLAttributes['style']->removeStyle('text-align');
+                          return $name;
+                        }
                       }
-    
-                      $style = \Tiptap\Utils\InlineStyle::getAttribute($DOMNode, 'text-align') ?: null;
-                      if ($style) {
-                        $DOMNode->removeAttribute('style');
-                      }
-                      return $style;
+
+                      return null;
                     },
                     'renderHTML' => function ($attributes) {
                         if (!isset($attributes->textAlign) || $attributes->textAlign === $this->options['defaultAlignment']) {

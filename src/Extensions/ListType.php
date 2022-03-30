@@ -25,9 +25,10 @@ class ListType extends Extension
             'attributes' => [
               'listType' => [
                   'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
-                    $style = \Tiptap\Utils\InlineStyle::getAttribute($DOMNode, 'list-style-type') ?: null;
+                    $style = isset($HTMLAttributes['style']) ? $HTMLAttributes['style']->getStyle('list-style-type') : null;
+
                     if ($style && in_array($style, $this->options['listTypes'])) {
-                      $DOMNode->removeAttribute('style');
+                      $HTMLAttributes['style']->removeStyle('list-style-type');
                       return $style;
                     }
                     return null;
