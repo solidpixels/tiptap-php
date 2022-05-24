@@ -13,6 +13,7 @@ class Color extends Mark
     public function addOptions()
     {
         return [
+            'prefix' => 'color--',
             'HTMLAttributes' => [
             ],
         ];
@@ -25,7 +26,7 @@ class Color extends Mark
               'tag' => 'span',
               'getAttrs' => function ($node) {
                 if ($color = $node->getAttribute('class')) {
-                  return preg_match('/color-preset-([^ ]*?)$/', $color) ?: false;
+                  return preg_match('/' . $this->options['prefix'] . '([^ ]*?)$/', $color) ?: false;
                 }
                 return false;
               },
@@ -45,8 +46,8 @@ class Color extends Mark
             'color' => [
                 'parseHTML' => function ($DOMNode, &$HTMLAttributes) {
                     if ($color = $DOMNode->getAttribute('class')) {
-                      if (preg_match('/color-preset-([^ ]*?)$/', $color, $matches)) {
-                        $HTMLAttributes['class']->removeClass("color-preset-{$matches[1]}");
+                      if (preg_match('/' . $this->options['prefix'] . '([^ ]*?)$/', $color, $matches)) {
+                        $HTMLAttributes['class']->removeClass($this->options['prefix'] . $matches[1]);
                         return $matches[1];
                       }
                     }
@@ -64,7 +65,7 @@ class Color extends Mark
                     }
 
                     return [
-                        'class' => "color-preset-{$attributes->color}",
+                        'class' => $this->options['prefix'] . $attributes->color,
                     ];
                 },
             ],
