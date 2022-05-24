@@ -9,7 +9,7 @@ class Table extends Node
 {
     public static $name = 'table';
 
-    public static $ignoredAttributes = ['class'];
+    public static $ignoredAttributes = ['class', 'hspace', 'vspace'];
 
     public function addOptions()
     {

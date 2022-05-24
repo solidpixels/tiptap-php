@@ -8,7 +8,7 @@ use Tiptap\Utils\HTML;
 class ListItem extends Node
 {
     public static $name = 'listItem';
-    
+
     public static $ignoredAttributes = ['wfd-id', 'value'];
 
     public static $allowedWrappers = ['p', 'h1', 'h2', 'h3', 'h4', 'h5'];

@@ -77,7 +77,6 @@ class DOMParser
                 $this->parseStyles($child, $HTMLAttributes);
 
                 $item = $this->parseAttributes($class, $child, $HTMLAttributes);
-                if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkAttributes($class, $child, $item, $HTMLAttributes);
 
                 if ($item === null) {
                     if ($child->hasChildNodes()) {
@@ -105,7 +104,10 @@ class DOMParser
                             'content' => $item['content'] ?? [],
                         ]),
                     ];
+                    if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->setNeedsMigration($wrapper);
                 }
+
+                if ($this->schema->ignoreExtension) $this->schema->ignoreExtension->checkAttributes($class, $child, $item, $HTMLAttributes);
 
                 array_push($nodes, $item);
             } elseif ($class = $this->getMarkFor($child)) {
